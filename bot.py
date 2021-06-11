@@ -1,6 +1,8 @@
 import os
 import discord
 import database
+import uuid
+import time
 from dotenv import load_dotenv
 from discord.ext import commands
 from datetime import datetime
@@ -30,12 +32,29 @@ async def evento(ctx):
 async def eventos(ctx, id):
   await ctx.author.send(database.getEvent(id))
 
+@bot.command(pass_context=True)
+async def chamar(ctx, id):
+  await ctx.author.send(database.getEvent(id))
+
 async def event_flow(ctx):
-  title = await getTitle(ctx.author)
-  description = await getDescription(ctx.author)
-  dateTime = await getDateTime(ctx.author)
-  event = {'title': title, 'description': description, 'datetime': dateTime.strftime('%d/%m/%Y %H:%M')}
-  id = database.addEvent(event)
+  # title = await getTitle(ctx.author)
+  # description = await getDescription(ctx.author)
+  # dateTime = await getDateTime(ctx.author)
+  title = "Eventozada"
+  description = "Vai set topper"
+  dateTime = datetime.strptime('11/06/2021 15:30', '%d/%m/%Y %H:%M')
+  eventId = str(uuid.uuid4()) 
+  event = {
+    'id': eventId,
+    'title': title, 
+    'description': description, 
+    'datetime': dateTime.strftime('%d/%m/%Y %H:%M'),
+    'createdBy': ctx.author.display_name,
+    'users': []
+    }
+  database.addEvent(event)
+
+  await sendEventMessage(ctx, event, eventId)
 
 async def getTitle(user):
   embed = discord.Embed(
@@ -78,5 +97,38 @@ async def getDateTime(user):
 
   msg = await bot.wait_for('message', check=check)
   return datetime.strptime(msg.content, '%d/%m/%Y %H:%M')
+
+async def sendEventMessage(ctx, event, id):
+  embed = discord.Embed(
+    title = event['title'],
+    description = event['description'],
+    colour = discord.Colour.gold(),
+  )
+
+  embed.set_footer(text="Evento criado por {}".format(event['createdBy']))
+  embed.add_field(name="Data e hora", value=event['datetime'], inline=False)
+  message = await ctx.channel.send(embed=embed)
+  await message.add_reaction("drake_yes:852995599853944842")
+  await message.add_reaction("drake_no:852995631030730752")
+
+  # def check(reaction, user):
+  #   check = reaction.emoji == "drake_yes:852995599853944842" 
+  #   print(check)
+  #   return check
+
+  check = lambda reaction, user: bot.user != user and reaction.emoji == bot.get_emoji(852995599853944842)
+
+  start_time = time.time()
+  seconds = 3
+
+  while True:
+    current_time = time.time()
+    elapsed_time = current_time - start_time
+
+    reaction, user = await bot.wait_for('reaction_add', timeout=3, check=check)
+    database.addUserToEvent(user, id)
+
+    if elapsed_time > seconds:
+      break    
 
 bot.run(os.getenv("DISCORD_TOKEN"))
