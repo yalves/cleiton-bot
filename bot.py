@@ -15,17 +15,32 @@ async def on_ready():
 # async def on_message(message):
 #     if message.author == bot.user:
 #         return
+        
+#     await message.channel.send('Hello!')
+#     await bot.process_commands(message)
 
-#     if message.content.startswith('$hello'):
-#         await message.channel.send('Hello!')
 
 @bot.command(pass_context=True)
 async def evento(ctx):
   await event_flow(ctx.author)
 
 async def event_flow(user):
-  await user.send("Qual o título do evento?")
+  title = await getTitle(user)
+  description = await getDescription(user)
+  dateTime = await getDateTime(user)
 
+async def getTitle(user):
+  embed = discord.Embed(
+    title = 'Qual o título do evento?',
+    description = 'Até 200 caracters',
+    colour = discord.Colour.blue(),
+  )
+  await user.send(embed=embed)
 
+  def check(m):
+      return m.author == user
+
+  msg = await bot.wait_for('message', check=check)
+  return msg
 
 bot.run(os.getenv("DISCORD_TOKEN"))
