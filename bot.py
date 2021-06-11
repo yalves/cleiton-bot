@@ -111,11 +111,6 @@ async def sendEventMessage(ctx, event, id):
   await message.add_reaction("drake_yes:852995599853944842")
   await message.add_reaction("drake_no:852995631030730752")
 
-  # def check(reaction, user):
-  #   check = reaction.emoji == "drake_yes:852995599853944842" 
-  #   print(check)
-  #   return check
-
   check = lambda reaction, user: bot.user != user and reaction.emoji == bot.get_emoji(852995599853944842)
 
   start_time = time.time()
