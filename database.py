@@ -9,6 +9,13 @@ def getEvent(id):
   event = db.get(None, int(id))
   return event
 
+def getEventsByDateTime(date):
+  print("getEventsByDateTime")
+  print(str(date))
+  events = db.search(Query().datetime == str(date))
+  print(events)
+  return events
+
 def addUserToEvent(user, id):
   Events = Query()
   event = db.search(Events.id == id)[0]

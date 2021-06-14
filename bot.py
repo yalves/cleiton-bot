@@ -3,8 +3,9 @@ import discord
 import database
 import uuid
 import time
+import asyncio
 from dotenv import load_dotenv
-from discord.ext import commands
+from discord.ext import commands, tasks
 from datetime import datetime
 
 load_dotenv()
@@ -32,6 +33,13 @@ async def evento(ctx):
 async def eventos(ctx, id):
   await ctx.author.send(database.getEvent(id))
 
+@tasks.loop(seconds = 60)
+async def remindEvents():
+  print("loopou")
+  now = datetime.now()
+  date = now.strftime('%d/%m/%Y %H:%M')
+  events = database.getEventsByDateTime(date)
+
 @bot.command(pass_context=True)
 async def chamar(ctx, id):
   await ctx.author.send(database.getEvent(id))
@@ -41,8 +49,8 @@ async def event_flow(ctx):
   # description = await getDescription(ctx.author)
   # dateTime = await getDateTime(ctx.author)
   title = "Eventozada"
-  description = "Vai set topper"
-  dateTime = datetime.strptime('11/06/2021 15:30', '%d/%m/%Y %H:%M')
+  description = "Vai ser topper"
+  dateTime = datetime.strptime('12/06/2021 02:23', '%d/%m/%Y %H:%M')
   eventId = str(uuid.uuid4()) 
   event = {
     'id': eventId,
@@ -113,17 +121,22 @@ async def sendEventMessage(ctx, event, id):
 
   check = lambda reaction, user: bot.user != user and reaction.emoji == bot.get_emoji(852995599853944842)
 
-  start_time = time.time()
-  seconds = 3
+  reaction, user = await bot.wait_for('reaction_add', timeout=3, check=check)
+  database.addUserToEvent(user, id)
 
-  while True:
-    current_time = time.time()
-    elapsed_time = current_time - start_time
+  # start_time = time.time()
+  # seconds = 3
 
-    reaction, user = await bot.wait_for('reaction_add', timeout=3, check=check)
-    database.addUserToEvent(user, id)
+  # while True:
+  #   current_time = time.time()
+  #   elapsed_time = current_time - start_time
 
-    if elapsed_time > seconds:
-      break    
+  #   reaction, user = await bot.wait_for('reaction_add', timeout=3, check=check)
+  #   database.addUserToEvent(user, id)
+
+  #   if elapsed_time > seconds:
+  #     break    
+
+remindEvents.start()
 
 bot.run(os.getenv("DISCORD_TOKEN"))
