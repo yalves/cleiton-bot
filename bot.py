@@ -55,7 +55,6 @@ async def eventos(ctx, id):
 
 @tasks.loop(seconds = 60)
 async def remindEvents():
-  await bot.wait_until_ready()
   print("remindEvents")
   now = datetime.now()
   date = now.strftime('%d/%m/%Y %H:%M')
@@ -63,6 +62,10 @@ async def remindEvents():
   for event in events:
     await sendReminderMessage(event)
     database.removeEvent(event)
+
+@remindEvents.before_loop
+async def before():
+    await bot.wait_until_ready()
 
 async def sendReminderMessage(event):
   userMentions = [ bot.get_user(x).mention for x in event['users'] ]
@@ -75,8 +78,6 @@ async def sendReminderMessage(event):
   embed.set_footer(text="Evento criado por {}".format(event['createdBy']))
   await bot.get_channel(event['channel']).send(embed=embed) 
   
-    
-
 @bot.command(pass_context=True)
 async def chamar(ctx, id):
   await ctx.author.send(database.getEvent(id))
@@ -86,9 +87,6 @@ async def event_flow(ctx):
   description = await getDescription(ctx.author)
   dateTime = await getDateTime(ctx.author)
   channelId = ctx.channel.id
-  # title = "Eventozada"
-  # description = "Vai ser topper"
-  # dateTime = datetime.strptime('12/06/2021 02:23', '%d/%m/%Y %H:%M')
   event = {
     'title': title, 
     'description': description, 
