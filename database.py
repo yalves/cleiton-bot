@@ -33,8 +33,3 @@ def removeUserFromEvent(user, id):
     users.remove(user.id)
     db.update({'users': users}, Events.id == id)
 
-  # else:
-  #   print("entrou no else")    
-  #   db.update({'users': [user.id]}, Events.id == id)
-    # db.update({'users': [user.id]}, db.get(None, int(id)))
-

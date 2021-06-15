@@ -1,6 +1,6 @@
 import os
 import discord
-import database
+import mongo as database
 import uuid
 import time
 import asyncio
@@ -55,7 +55,6 @@ async def eventos(ctx, id):
 
 @tasks.loop(seconds = 60)
 async def remindEvents():
-  print("remindEvents")
   now = datetime.now()
   date = now.strftime('%d/%m/%Y %H:%M')
   events = database.getEventsByDateTime(date)
