@@ -7,6 +7,7 @@ import asyncio
 from dotenv import load_dotenv
 from discord.ext import commands, tasks
 from datetime import datetime
+from pytz import timezone
 
 load_dotenv()
 
@@ -55,7 +56,7 @@ async def eventos(ctx, id):
 
 @tasks.loop(seconds = 60)
 async def remindEvents():
-  now = datetime.now()
+  now = datetime.now().astimezone(timezone('America/Sao_Paulo'))
   date = now.strftime('%d/%m/%Y %H:%M')
   events = database.getEventsByDateTime(date)
   for event in events:
