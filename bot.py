@@ -50,10 +50,6 @@ async def on_reaction_add(reaction, user):
 async def evento(ctx):
   await event_flow(ctx)
 
-@bot.command(pass_context=True)
-async def eventos(ctx, id):
-  await ctx.author.send(database.getEvent(id))
-
 @tasks.loop(seconds = 60)
 async def remindEvents():
   now = datetime.now().astimezone(timezone('America/Sao_Paulo'))
@@ -77,10 +73,6 @@ async def sendReminderMessage(event):
 
   embed.set_footer(text="Evento criado por {}".format(event['createdBy']))
   await bot.get_channel(event['channel']).send(embed=embed) 
-  
-@bot.command(pass_context=True)
-async def chamar(ctx, id):
-  await ctx.author.send(database.getEvent(id))
 
 async def event_flow(ctx):
   title = await getTitle(ctx.author)
