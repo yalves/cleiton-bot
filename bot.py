@@ -94,10 +94,10 @@ async def event_flow(ctx):
     'createdBy': ctx.author.display_name,
     'users': [],
     'channel': channelId
-    }
-  
+    }  
 
-  await sendEventMessage(ctx, event)
+  eventMessageLink = await sendEventMessage(ctx, event)
+  await sendMessageLink(ctx.author, eventMessageLink)
 
 async def getTitle(user):
   embed = discord.Embed(
@@ -155,6 +155,15 @@ async def sendEventMessage(ctx, event):
   database.addEvent(event)
   await message.add_reaction("drake_yes:852995599853944842")
   await message.add_reaction("drake_no:852995631030730752")
+  return message.jump_url
+
+async def sendMessageLink(user, eventMessageLink):
+  embed = discord.Embed(
+    title = "O evento foi criado",
+    description = f"[Clique aqui para visualizar]({eventMessageLink})",
+    colour = discord.Colour.green(),
+  )
+  await user.send(embed=embed)
 
 remindEvents.start()
 
