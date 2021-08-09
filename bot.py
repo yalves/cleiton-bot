@@ -58,7 +58,7 @@ async def remindEvents():
   for event in events:
     await sendReminderMessage(event)
     database.removeEvent(event)
-
+    
 @remindEvents.before_loop
 async def before():
     await bot.wait_until_ready()
@@ -73,6 +73,10 @@ async def sendReminderMessage(event):
 
   embed.set_footer(text="Evento criado por {}".format(event['createdBy']))
   await bot.get_channel(event['channel']).send(embed=embed) 
+
+  #also send a dm to users in userMentions
+  for user in event['users']:
+    await bot.get_user(user).send(embed=embed)
 
 async def event_flow(ctx):
   title = await getTitle(ctx.author)
